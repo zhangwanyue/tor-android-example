@@ -12,10 +12,13 @@ https://github.com/akwizgran/jtorctl
 
 ### Workflow
 
-* Download copy and unzip `android tor binary` into `raw` folder:
+* Download, copy and unzip `android tor binary` into `raw` folder:
 
 ```groovy
 [build.gradle]
+project.configurations {
+    tor
+}
 dependencies {
     // https://bintray.com/briarproject/org.briarproject/tor-android
     tor 'org.briarproject:tor-android:0.3.4.8@zip'
