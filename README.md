@@ -12,7 +12,8 @@ https://github.com/akwizgran/jtorctl
 
 ### workflow
 
-1. download copy and unzip `android tor binary` into `raw` folder:
+* download copy and unzip `android tor binary` into `raw` folder:
+
 ```groovy
 [build.gradle]
 dependencies {
@@ -27,18 +28,22 @@ project.afterEvaluate {
 }
 ```
 
-2. initialize some params
+* initialize some params
+
 `MainActivity.onCreate()` new one `torPlugin` object, and initialize some params in its constructor.
 
-3. start run
+* start run
+
 `MainActivity.onCreate()` call `new Thread(torPlugin).start()` to start torPlugin.
 
-4. install assets
+* install assets
+
 In `TorPlugin.run()`, it first call `TorPlugin.installAssets` to install or update the assets.
 The assets is `android tor binary` which has been downloaded into `raw` folder.
 The assets will be installed into `torDirectory` folder.
 
-5. run `android tor binary` in `torDirectory` folder
+* run `android tor binary` in `torDirectory` folder
+
 Using a process to run `android tor binary`, and gets the process's input stream when the binary start to run.
 ```android
 ProcessBuilder pb = new ProcessBuilder(torPath, "-f", configPath, OWNER, pid);
@@ -46,7 +51,8 @@ torProcess = pb.start();
 Scanner stdout = new Scanner(torProcess.getInputStream());
 ```
 
-6. interact with tor
+* interact with tor
+
 When `android tor binary` start running, we can use `jtorctl` lib to interact with it.
 ```groovy
 [build.gradle]
@@ -55,7 +61,8 @@ dependencies {
 }
 ```
 
-7. open a control socket and communicate with tor
+* open a control socket and communicate with tor
+
 open a control socket and using this control socket to construct a controlConnection to communicate with tor:
 ```android
 controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
