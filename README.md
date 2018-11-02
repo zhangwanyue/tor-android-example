@@ -42,9 +42,7 @@ This is a Tor android example, using tor binary on android.
 * Install assets
 
     In `TorPlugin.run()`, it first call `TorPlugin.installAssets()` to install or update the assets.
-    
     The assets is `android tor binary` which has been downloaded into `raw` folder.
-    
     The assets will be installed into `torDirectory` folder.
 
 * Run `android tor binary` in `torDirectory` folder
