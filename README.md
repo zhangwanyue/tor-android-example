@@ -4,11 +4,11 @@ This is a Tor android example, using tor binary on android.
 
 * Pre build android tor binary: 
 
-https://github.com/n8fr8/tor-android
+    https://github.com/n8fr8/tor-android
 
 * A Java library for controlling a Tor instance via its control port which is used in the Android apps:
 
-https://github.com/akwizgran/jtorctl 
+    https://github.com/akwizgran/jtorctl 
 
 ### Workflow
 
@@ -42,7 +42,9 @@ https://github.com/akwizgran/jtorctl
 * Install assets
 
     In `TorPlugin.run()`, it first call `TorPlugin.installAssets()` to install or update the assets.
+    
     The assets is `android tor binary` which has been downloaded into `raw` folder.
+    
     The assets will be installed into `torDirectory` folder.
 
 * Run `android tor binary` in `torDirectory` folder
