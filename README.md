@@ -10,9 +10,9 @@ https://github.com/n8fr8/tor-android
 
 https://github.com/akwizgran/jtorctl 
 
-### workflow
+### Workflow
 
-* download copy and unzip `android tor binary` into `raw` folder:
+* Download copy and unzip `android tor binary` into `raw` folder:
 
 ```groovy
 [build.gradle]
@@ -28,21 +28,21 @@ project.afterEvaluate {
 }
 ```
 
-* initialize some params
+* Initialize some params
 
 `MainActivity.onCreate()` new one `torPlugin` object, and initialize some params in its constructor.
 
-* start run
+* Start run
 
 `MainActivity.onCreate()` call `new Thread(torPlugin).start()` to start torPlugin.
 
-* install assets
+* Install assets
 
 In `TorPlugin.run()`, it first call `TorPlugin.installAssets` to install or update the assets.
 The assets is `android tor binary` which has been downloaded into `raw` folder.
 The assets will be installed into `torDirectory` folder.
 
-* run `android tor binary` in `torDirectory` folder
+* Run `android tor binary` in `torDirectory` folder
 
 Using a process to run `android tor binary`, and gets the process's input stream when the binary start to run.
 ```android
@@ -51,7 +51,7 @@ torProcess = pb.start();
 Scanner stdout = new Scanner(torProcess.getInputStream());
 ```
 
-* interact with tor
+* Interact with tor
 
 When `android tor binary` start running, we can use `jtorctl` lib to interact with it.
 ```groovy
@@ -61,7 +61,7 @@ dependencies {
 }
 ```
 
-* open a control socket and communicate with tor
+* Open a control socket and communicate with tor
 
 open a control socket and using this control socket to construct a controlConnection to communicate with tor:
 ```android
@@ -70,13 +70,13 @@ controlConnection = new TorControlConnection(controlSocket);
 ```
 the default CONTROL_PORT of tor is 59051.
 
-### how to build and run
+### How to build and run
 
-* build
+* Build
 
 In root dir, using `./gradlew build` to build this apk, using './gradlew installDebug' or 'adb install xxx.apk' to install.
 
-* run
+* Run
 
 After install, open this apk and wait, after a while, the logcat should print:`Tor has already bootstrapped`, this means Tor has already bootstrapped.
 
