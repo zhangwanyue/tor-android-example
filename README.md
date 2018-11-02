@@ -77,7 +77,7 @@ This is a Tor android example, using tor binary on android.
 
 * Build
 
-    In root dir, using `./gradlew build` to build this apk, using './gradlew installDebug' or 'adb install xxx.apk' to install.
+    In root dir, using `./gradlew build` to build this apk, using `./gradlew installDebug` or `adb install xxx.apk` to install.
 
 * Run
 
