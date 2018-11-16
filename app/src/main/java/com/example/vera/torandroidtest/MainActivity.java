@@ -28,6 +28,5 @@ public class MainActivity extends AppCompatActivity {
         TorPlugin torPlugin = new TorPlugin(appContext, torDirectory);
         // run torPlugin
         new Thread(torPlugin).start();
-
     }
 }
