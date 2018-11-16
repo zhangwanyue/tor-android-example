@@ -118,6 +118,9 @@ public class TorPlugin implements EventHandler, Runnable{
         ControlPortOperation.setEvents(controlConnection, this, Arrays.asList(EVENTS));
     }
 
+    /**
+     * 将tor-android及geoip , torrc等文件载入到手机中，并赋予tor-android文件执行权限
+     */
     private void installAssets(){
         Log.i(TAG, "Installing Tor binary for " + architecture);
         InputStream in = null;
@@ -151,6 +154,11 @@ public class TorPlugin implements EventHandler, Runnable{
         }
     }
 
+    /**
+     * 启动一个进程运行tor-android二进制文件
+     * 并使用`__OwningControllerProcess`参数指定tor监控进程号为pid的进程（pid在这里是当前程序的进程号），如果该进程消失了，tor会自动停止
+     * 然后等待生成用来认证的authenticate cookie file
+     */
     private void startTorProcess(){
         // Start a new Tor process
         Log.i(TAG,"Starting Tor");
@@ -199,6 +207,13 @@ public class TorPlugin implements EventHandler, Runnable{
         }
     }
 
+    /**
+     * 建一个socket，连接到tor提供的控制端口(`control port`)，并使用第三方库`jtorctl`建立一个`controlConnection`对象与tor进行交互控制。
+     * 交互前需要使用刚生成的`authenticate cookie file`通过`controlConnection`向tor进行认证。
+     * 需要使用`takeOwnership()`接口告知tor监控该`control port上`的连接，当连接关闭后，tor就停止。
+     * 该方法中还使用了`setEvents()`接口，请求服务端在设置的事件发生时向客户端发送通知。
+     * 并且使用`getInfo()`接口，从服务端获取`status/bootstrap-phase`信息，如果返回状态中包含“PROGRESS=100”，表示tor的circuit已经成功建立，可以进行通信了。
+     */
     private void openControlConnectionAndWaitForBootstrapped(){
         try {
             // Open a control connection and authenticate using the cookie file
@@ -230,16 +245,23 @@ public class TorPlugin implements EventHandler, Runnable{
         }
     }
 
+    /**
+     * 新建两个线程模拟hidden service和client，进行通信
+     */
     private void testServerAndClient(){
 
+        // server bind local port
         bindToLocalPort();
+        // server publish hidden service
+        publishHiddenService();
         new Thread(new Runnable() {
             public void run() {
+                // server accept clients' connect
                 accessClientConnect();
             }
         }).start();
-        publishHiddenService();
 
+        // 这里需要等待hidden service descriptor uploaded
         try {
             Thread.sleep(50*1000);
         } catch (InterruptedException e) {
@@ -248,6 +270,7 @@ public class TorPlugin implements EventHandler, Runnable{
 
         new Thread(new Runnable() {
             public void run() {
+                // client connect to hidden service
                 connectToRemote();
             }
         }).start();
