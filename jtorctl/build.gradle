@@ -1,0 +1,19 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'org.briarproject'
+version = '0.3'
+
+description = ""
+
+sourceCompatibility = 1.5
+targetCompatibility = 1.5
+
+
+repositories {
+     maven { url "http://repo.maven.apache.org/maven2" }
+}
+
+dependencies{
+     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+}
