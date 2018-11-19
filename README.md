@@ -1,4 +1,8 @@
-# 简介
+# 0. 目录
+
+[TOC]
+
+# 1. 简介 
 
 这是一个在android上使用tor进行网络通信的demo。
 
@@ -10,7 +14,7 @@
 
 3. 启动两个线程分别模拟hidden service与client，进行通信
 
-# 使用的预编译文件及第三方库简介
+# 2. 使用的预编译文件及第三方库简介
 
 * 预编译好的`tor-android`二进制文件：
   https://github.com/n8fr8/tor-android
@@ -21,9 +25,9 @@
 * tor的`control port`的协议规范：
   https://gitweb.torproject.org/torspec.git/tree/control-spec.txt
 
-# 工作流程简介
+# 3. 工作流程简介
 
-### 下载`tor-android`，并解压到项目的`raw`文件夹中
+### 3.1 下载`tor-android`，并解压到项目的`raw`文件夹中
 
 ```groovy
     [build.gradle]
@@ -42,17 +46,17 @@
     }
 ```
 
-### 文件装载
+### 3.2 文件装载
 
 在`installAssets()`中，将`tor-android`及`geoip`,`torrc`等文件载入到手机中，并赋予`tor-android`文件执行权限
 
-### <span id="start-tor">启动tor进程</span>
+### 3.3 <span id="start-tor">启动tor进程</span>
 
 在`startTorProcess()`中，启动一个进程运行`tor-android`二进制文件，并使用`__OwningControllerProcess`参数指定tor监控进程号为pid的进程（pid在这里是当前程序的进程号），如果该进程消失了，tor会自动停止。
 
 然后等待生成用来认证的`authenticate cookie file`。
 
-### <span id="connect-to-control-port">连接到tor的控制端口(`control port`)</span>
+### 3.4 <span id="connect-to-control-port">连接到tor的控制端口(`control port`)</span>
 
 本demo中将`jtorctl`第三方库构建成了一个模块添加进来，并新增了`addOnionV3`接口，用来生成`hidden service v3`。
 
@@ -91,13 +95,13 @@
 
 并且使用`getInfo()`接口，从服务端获取`status/bootstrap-phase`信息，如果返回状态中包含“PROGRESS=100”，表示tor的circuit已经成功建立，可以进行通信了。
 
-### 启动两个线程分别模拟hidden service与client，进行通信
+### 3.5 启动两个线程分别模拟hidden service与client，进行通信
 
 新建两个线程模拟`hidden service`和`client`，进行通信。
 
 该过程在`testServerAndClient()`中。
 
-#### 服务端
+#### 3.5.1 服务端
 
 * 服务端绑定端口
 
@@ -119,7 +123,7 @@ Tor通过controlConnection向服务端返回应答，应答中包含生成的hid
 
 在`accessClientConnect()`中，服务端等待客户端连接，并向客户端发送一条信息："Hello client"
 
-#### 客户端
+#### 3.5.2 客户端
 
 * 配置tor proxy代理
 
@@ -167,7 +171,7 @@ socks5Socket = new SocksSocket(proxy, CONNECT_TO_PROXY_TIMEOUT, EXTRA_SOCKET_TIM
 socks5Socket.connect(InetSocketAddress.createUnresolved(hiddenServiceAddress, HIDDENSERVICE_VIRTUAL_PORT));
 ```
 
-### 使用tor的控制端口(`control port`)使app与tor process进行交互
+### 3.6 使用tor的控制端口(`control port`)使app与tor process进行交互
 
 * 初始化`controlConnection`
 
