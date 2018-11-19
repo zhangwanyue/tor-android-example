@@ -12,7 +12,7 @@
 
 2. 通过`control port`和运行的tor进程进行交互
 
-3. 启动两个线程分别模拟hidden service与client，进行通信
+3. 启动两个线程分别模拟`hidden service`与`client`进行通信
 
 # 2. 使用的预编译文件及第三方库简介
 
@@ -93,7 +93,7 @@
 
 该方法中还使用了`setEvents()`接口，请求服务端在设置的事件发生时向客户端发送通知。
 
-并且使用`getInfo()`接口，从服务端获取`status/bootstrap-phase`信息，如果返回状态中包含“PROGRESS=100”，表示tor的circuit已经成功建立，可以进行通信了。
+并且使用`getInfo()`接口，从服务端获取`status/bootstrap-phase`信息，如果返回状态中包含`PROGRESS=100`，表示tor的circuit已经成功建立，可以进行通信了。
 
 ### 3.5 启动两个线程分别模拟hidden service与client，进行通信
 
@@ -105,19 +105,19 @@
 
 * 服务端绑定端口
 
-在`bindToLocalPort()`中，服务端新建一个ServerSocket，并绑定到一个端口（该端口为target port）提供服务。
+在`bindToLocalPort()`中，服务端新建一个`ServerSocket`，并绑定到一个端口（该端口为`target port`）提供服务。
 
 * 发布hidden service
 
-在`publishHiddenService()`中，服务端通过controlConnection向tor发送ADD_ONION命令，映射本地的target port到虚拟端口virtual port。
+在`publishHiddenService()`中，服务端通过`controlConnection`向tor发送`ADD_ONION`命令，映射本地的`target port`到虚拟端口`virtual port`。
 
-客户端将通过服务端的hidden service address和virtual port访问服务端，实际访问的是服务端的target port的服务。
+客户端将通过服务端的`hidden service address`和`virtual port`访问服务端，实际访问的是服务端的`target port`的服务。
 
 这里设定的virtual port为80。
 
-Tor通过controlConnection向服务端返回应答，应答中包含生成的hidden service address和private key等信息。
+Tor通过`controlConnection`向服务端返回应答，应答中包含生成的`hidden service address`和`private key`等信息。
 
-至此，服务端hidden service已经建立完成。
+至此，服务端`hidden service`已经建立完成。
 
 * 服务端等待客户端的连接
 
@@ -127,7 +127,7 @@ Tor通过controlConnection向服务端返回应答，应答中包含生成的hid
 
 * 配置tor proxy代理
 
-在建立客户端socket的时候，需要使用到tor提供的代理端口（socks port），才能访问tor网络。该代理（该代理是`socks5`代理）端口在torrc文件中会进行配置：
+在建立客户端socket的时候，需要使用到tor提供的代理端口（`socks port`），才能访问tor网络。该代理（该代理是`socks5`代理）端口在torrc文件中会进行配置：
 
 ```
 /**
@@ -146,9 +146,9 @@ InetSocketAddress proxy = new InetSocketAddress("127.0.0.1", SOCKS_PORT);
 
 使用代理连接到服务端，并读取服务端发来的信息。
 
-**关于远程解析.onion域名**
+**关于远程解析`.onion`域名**
  
-因为服务端的域名为xxx.onion，不是可以本地解析的地址，需要tor代理进行远程解析。
+因为服务端的域名为`xxx.onion`，不是可以本地解析的地址，需要tor代理进行远程解析。
 
 按理来说，在java中，进行远程解析应该使用`InetSocketAddress.createUnresolved`构造需要远程解析的域名地址，放入`socket.connect`方法中：
 
@@ -171,15 +171,15 @@ socks5Socket = new SocksSocket(proxy, CONNECT_TO_PROXY_TIMEOUT, EXTRA_SOCKET_TIM
 socks5Socket.connect(InetSocketAddress.createUnresolved(hiddenServiceAddress, HIDDENSERVICE_VIRTUAL_PORT));
 ```
 
-### 3.6 使用tor的控制端口(`control port`)使app与tor process进行交互
+### 3.6 使用tor的控制端口(`control port`)使app与`tor process`进行交互
 
 * 初始化`controlConnection`
 
 关于初始化`controlConnection`的过程在上文的[启动tor进程](#start-tor)和[连接到tor的控制端口](#connect-to-control-port)中已经有详细的介绍了。
 
-* 使用`jtorctl`类库中的方法对tor process进行交互
+* 使用`jtorctl`类库中的方法对`tor process`进行交互
 
-在初始化过程完成之后，就可以使用`jtorctl`类库中的方法对tor process进行交互。
+在初始化过程完成之后，就可以使用`jtorctl`类库中的方法对`tor process`进行交互。
 
 关于`jtorctl`类库中相关方法的使用和说明已经封装在`ControlPortOperation`类中，可以直接调用该类中的静态方法。
 
