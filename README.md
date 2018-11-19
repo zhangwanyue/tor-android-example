@@ -60,7 +60,7 @@
 
 交互前需要使用刚生成的`authenticate cookie file`通过`controlConnection`向tor进行认证。
 
-需要使用`takeOwnership()`接口告知tor监控该`control port上`的连接，当连接关闭后，tor就停止。协议文档中对`TAKEOWNERSHIP`命令的介绍如下：
+需要使用`takeOwnership()`接口告知tor监控该`control port`上的连接，当连接关闭后，tor就停止。协议文档中对`TAKEOWNERSHIP`命令的介绍如下：
 
 > This command is intended to be used with the
  __OwningControllerProcess configuration option.  A controller that
@@ -141,7 +141,7 @@ InetSocketAddress proxy = new InetSocketAddress("127.0.0.1", SOCKS_PORT);
 
 使用代理连接到服务端，并读取服务端发来的信息。
 
-**远程解析.onion域名**
+**关于远程解析.onion域名**：
 
 因为服务端的域名为xxx.onion，不是可以本地解析的地址，需要tor代理进行远程解析。
 
@@ -172,6 +172,17 @@ socks5Socket.connect(InetSocketAddress.createUnresolved(hiddenServiceAddress, HI
 
 关于初始化`controlConnection`的过程在上文的[启动tor进程](#start-tor)和[连接到tor的控制端口](#connect-to-control-port)中已经有详细的介绍了。
 
+在初始化过程完成之后，可以使用`jtorctl`类库中的方法对tor process进行交互。
+
+关于`jtorctl`类库中相关方法的使用和说明已经封装在`ControlPortOperation`类中，可以直接调用该类中的静态方法。
+
+比如，在`TorPlugin.run()`中调用了如下代码：
+
+```java
+ControlPortOperation.getConf(controlConnection, "SocksPort");//查询配置参数SocksPort的值
+ControlPortOperation.getInfo(controlConnection, "version");//查询tor的版本号信息
+ControlPortOperation.setEvents(controlConnection, this, Arrays.asList(EVENTS));//请求服务端在设置的事件发生时向客户端发送通知
+```
 
 
 
