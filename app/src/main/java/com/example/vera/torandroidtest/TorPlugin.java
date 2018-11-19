@@ -276,7 +276,13 @@ public class TorPlugin implements EventHandler, Runnable{
         }).start();
     }
 
-
+    /**
+     * 服务端通过controlConnection向tor发送ADD_ONION命令，映射本地的target port到虚拟端口virtual port。
+     * 客户端将通过服务端的hidden service address和virtual port访问服务端，实际访问的是服务端的target port的服务。
+     * 这里设定的virtual port为80。
+     * Tor通过controlConnection向服务端返回应答，应答中包含生成的hidden service address和private key等信息。
+     * 至此，服务端hidden service已经建立完成。
+     */
     private void publishHiddenService() {
         Map<Integer, String> portLines =
                 Collections.singletonMap(HIDDENSERVICE_VIRTUAL_PORT, "127.0.0.1:" + HIDDENSERVICE_TARGET_PORT);
@@ -304,6 +310,9 @@ public class TorPlugin implements EventHandler, Runnable{
         }
     }
 
+    /**
+     * 服务端新建一个ServerSocket，并绑定到一个端口（该端口为target port）提供服务
+     */
     private void bindToLocalPort(){
         ServerSocket ss = null;
         try {
@@ -316,6 +325,9 @@ public class TorPlugin implements EventHandler, Runnable{
         serverSocket = ss;
     }
 
+    /**
+     * 服务端等待客户端连接，并向客户端发送一条信息："Hello client"
+     */
     private void accessClientConnect(){
         Socket clientSocket = null;
         PrintWriter out = null;
@@ -345,6 +357,18 @@ public class TorPlugin implements EventHandler, Runnable{
         }
     }
 
+    /**
+     * 配置tor proxy代理
+     * 连接到服务端
+     *
+     *
+     * 因为服务端的地址为xxx.onion，不是可以本地解析的地址，需要tor代理进行远程解析
+     * 按理来说，在java中，进行远程解析应该使用`InetSocketAddress.createUnresolved`构造数据包
+     * 但是该方法在android中会遇到`java.net.UnknownHostException: Host is unresolved`的异常。
+     * 关于该问题的一个参考：https://stackoverflow.com/questions/39308705/android-how-to-let-tor-service-to-perform-the-dns-resolution-using-socket
+     * 本代码中使用`SocksSocket`类重写了`Socket`类的`connect`方法，在客户端发送连接请求给服务端时，直接将域名直接封装到`socks5`数据包中，发送给代理。
+     * 并处理好`connect`方法中的客户端服务端的认证协商过程，关于该过程的详解请见`socks5`协议：https://www.ietf.org/rfc/rfc1928.txt
+     */
     private void connectToRemote(){
         SocksSocket socks5Socket = null;
         BufferedReader in = null;
