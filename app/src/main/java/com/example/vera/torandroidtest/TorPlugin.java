@@ -76,6 +76,8 @@ public class TorPlugin implements EventHandler, Runnable{
 
     private ServerSocket serverSocket;
 
+    private volatile boolean isDesUploaded = false;
+
     public TorPlugin(Context appContext, File torDirectory){
         this.appContext = appContext;
         this.torDirectory = torDirectory;
@@ -109,13 +111,14 @@ public class TorPlugin implements EventHandler, Runnable{
         // open tor control connection and wait for tor to get bootstrapped
         openControlConnectionAndWaitForBootstrapped();
 
-        // act as a server to publish a hidden service, and then act as a client to connect to it's hidden service
-//        testServerAndClient();
-
         // communicate with a locally running tor process using control connection
         ControlPortOperation.getConf(controlConnection, "SocksPort");
         ControlPortOperation.getInfo(controlConnection, "version");
         ControlPortOperation.setEvents(controlConnection, this, Arrays.asList(EVENTS));
+
+        // act as a server to publish a hidden service, and then act as a client to connect to it's hidden service
+        testServerAndClient();
+
     }
 
     /**
@@ -257,15 +260,18 @@ public class TorPlugin implements EventHandler, Runnable{
         new Thread(new Runnable() {
             public void run() {
                 // server accept clients' connect
-                accessClientConnect();
+                acceptClientConnect();
             }
         }).start();
 
+
         // 这里需要等待hidden service descriptor uploaded
-        try {
-            Thread.sleep(50*1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        while(!isDesUploaded) {
+            try {
+                Thread.sleep(5 * 1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         new Thread(new Runnable() {
@@ -328,7 +334,7 @@ public class TorPlugin implements EventHandler, Runnable{
     /**
      * 服务端等待客户端连接，并向客户端发送一条信息："Hello client"
      */
-    private void accessClientConnect(){
+    private void acceptClientConnect(){
         Socket clientSocket = null;
         PrintWriter out = null;
         while(true) {
@@ -494,9 +500,9 @@ public class TorPlugin implements EventHandler, Runnable{
 
     @Override
     public void unrecognized(String type, String msg) {
-        if (type.equals("HS_DESC") && msg.startsWith("UPLOADED"))
-            Log.d(TAG, "Descriptor uploaded");
+        if (type.equals("HS_DESC") && msg.startsWith("UPLOADED")) {
+            Log.i(TAG, "Descriptor uploaded");
+            isDesUploaded = true;
+        }
     }
-
-
 }

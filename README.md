@@ -95,13 +95,33 @@
 
 并且使用`getInfo()`接口，从服务端获取`status/bootstrap-phase`信息，如果返回状态中包含`PROGRESS=100`，表示tor的circuit已经成功建立，可以进行通信了。
 
-### 3.5 启动两个线程分别模拟hidden service与client，进行通信
+### 3.5 使用tor的控制端口(`control port`)使app与`tor process`进行交互
+
+* 初始化`controlConnection`
+
+关于初始化`controlConnection`的过程在上文的[启动tor进程](#start-tor)和[连接到tor的控制端口](#connect-to-control-port)中已经有详细的介绍了。
+
+* 使用`jtorctl`类库中的方法对`tor process`进行交互
+
+在初始化过程完成之后，就可以使用`jtorctl`类库中的方法对`tor process`进行交互。
+
+关于`jtorctl`类库中相关方法的使用和说明已经封装在`ControlPortOperation`类中，可以直接调用该类中的静态方法。
+
+比如，在`TorPlugin.run()`中调用了如下代码：
+
+```java
+ControlPortOperation.getConf(controlConnection, "SocksPort");//查询配置参数SocksPort的值
+ControlPortOperation.getInfo(controlConnection, "version");//查询tor的版本号信息
+ControlPortOperation.setEvents(controlConnection, this, Arrays.asList(EVENTS));//请求服务端在设置的事件发生时向客户端发送通知
+```
+
+### 3.6 启动两个线程分别模拟hidden service与client，进行通信
 
 新建两个线程模拟`hidden service`和`client`，进行通信。
 
 该过程在`testServerAndClient()`中。
 
-#### 3.5.1 服务端
+#### 3.6.1 服务端
 
 * 服务端绑定端口
 
@@ -121,9 +141,9 @@ Tor通过`controlConnection`向服务端返回应答，应答中包含生成的`
 
 * 服务端等待客户端的连接
 
-在`accessClientConnect()`中，服务端等待客户端连接，并向客户端发送一条信息："Hello client"
+在`acceptClientConnect()`中，服务端等待客户端连接，并向客户端发送一条信息："Hello client"
 
-#### 3.5.2 客户端
+#### 3.6.2 客户端
 
 * 配置tor proxy代理
 
@@ -171,25 +191,7 @@ socks5Socket = new SocksSocket(proxy, CONNECT_TO_PROXY_TIMEOUT, EXTRA_SOCKET_TIM
 socks5Socket.connect(InetSocketAddress.createUnresolved(hiddenServiceAddress, HIDDENSERVICE_VIRTUAL_PORT));
 ```
 
-### 3.6 使用tor的控制端口(`control port`)使app与`tor process`进行交互
 
-* 初始化`controlConnection`
-
-关于初始化`controlConnection`的过程在上文的[启动tor进程](#start-tor)和[连接到tor的控制端口](#connect-to-control-port)中已经有详细的介绍了。
-
-* 使用`jtorctl`类库中的方法对`tor process`进行交互
-
-在初始化过程完成之后，就可以使用`jtorctl`类库中的方法对`tor process`进行交互。
-
-关于`jtorctl`类库中相关方法的使用和说明已经封装在`ControlPortOperation`类中，可以直接调用该类中的静态方法。
-
-比如，在`TorPlugin.run()`中调用了如下代码：
-
-```java
-ControlPortOperation.getConf(controlConnection, "SocksPort");//查询配置参数SocksPort的值
-ControlPortOperation.getInfo(controlConnection, "version");//查询tor的版本号信息
-ControlPortOperation.setEvents(controlConnection, this, Arrays.asList(EVENTS));//请求服务端在设置的事件发生时向客户端发送通知
-```
 
 
 
