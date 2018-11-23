@@ -264,7 +264,8 @@ public class TorPlugin implements EventHandler, Runnable{
             }
         }).start();
 
-
+        // setEvents之后才能获取HS_DESC的通知
+        ControlPortOperation.setEvents(controlConnection, this, Arrays.asList("HS_DESC"));
         // 这里需要等待hidden service descriptor uploaded
         while(!isDesUploaded) {
             try {
